@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#070816">
+<title>Blue Moon — Lease on Reality</title>
+<style>
+  :root {
+    --ink:#f4efff; --muted:#c4b8d9; --edge:rgba(197,180,255,.26);
+    --a:#a978ff; --b:#64e6df; --c:#ffd5aa; --hot:#ea6ddf;
+    --back:#080816; --panel:rgba(14,12,32,.72);
+  }
+  * { box-sizing:border-box }
+  html,body { margin:0; width:100%; min-height:100%; background:var(--back); color:var(--ink); }
+  body { font-family: "Trebuchet MS", Verdana, sans-serif; overflow-x:hidden; }
+  button,input { font:inherit; }
+  button { cursor:pointer; }
+  #sky { position:fixed; inset:0; width:100%; height:100%; z-index:0; }
+  .noise { pointer-events:none; position:fixed; inset:0; opacity:.16; z-index:1; mix-blend-mode:screen;
+     background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E"); }
+  .edge-lights { pointer-events:none; position:fixed; inset:0; z-index:1;
+     background:radial-gradient(ellipse at 50% 47%,transparent 21%,rgba(1,1,9,.19) 69%,rgba(1,1,9,.67) 100%); }
+  .shell { z-index:2; position:relative; min-height:100svh; display:flex; flex-direction:column; padding:24px clamp(18px,4vw,58px) 18px; }
+  header { width:100%; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+  .seal { display:flex; align-items:center; gap:12px; font-size:10px; line-height:1.55; letter-spacing:.20em; text-transform:uppercase; color:var(--muted); }
+  .moon { width:41px; height:41px; border:1px solid var(--edge); border-radius:50%; display:grid; place-items:center; font-size:24px; color:var(--c); text-shadow:0 0 18px var(--a); box-shadow:0 0 24px rgba(161,119,255,.16),inset 0 0 20px rgba(161,119,255,.12); }
+  .status { text-align:right; color:var(--muted); font:10px/1.8 monospace; letter-spacing:.08em; }
+  .status strong { color:var(--b); font-weight:normal; }
+  main { flex:1; display:grid; place-items:center; position:relative; padding:36px 0 26px; }
+  .portal { position:absolute; width:min(68vw,700px); aspect-ratio:1; left:50%; top:50%; transform:translate(-50%,-49%); pointer-events:none; filter:drop-shadow(0 0 55px rgba(118,77,241,.38)); }
+  .orbital { position:absolute; inset:13%; border:1px solid rgba(180,137,255,.18); border-radius:47% 53% 50% 50%; transform:rotate(-25deg); animation:rotate 58s linear infinite; }
+  .orbital:nth-child(2) { inset:22%; border-color:rgba(98,230,223,.19); border-radius:60% 40% 49% 51%; animation-duration:37s; animation-direction:reverse; }
+  .orbital:nth-child(3) { inset:8%; border-color:rgba(255,189,209,.12); border-radius:53% 47% 44% 56%; animation-duration:90s; }
+  .center { position:relative; z-index:3; width:min(100%,625px); text-align:center; }
+  .eyebrow { display:inline-block; border:1px solid var(--edge); border-radius:100px; padding:9px 15px; margin-bottom:22px; color:var(--b); font:10px/1.1 monospace; letter-spacing:.21em; text-transform:uppercase; background:rgba(9,9,24,.55); box-shadow:0 0 28px rgba(124,116,255,.12); }
+  h1 { margin:0; font-family:Georgia,"Times New Roman",serif; font-size:clamp(58px,9.9vw,117px); font-weight:normal; letter-spacing:-.055em; line-height:.85; text-shadow:0 0 36px rgba(166,117,253,.30), 0 0 95px rgba(103,188,233,.14); }
+  h1 em { font-style:italic; color:var(--c); }
+  h1 span { display:block; font-size:clamp(24px,3.7vw,43px); letter-spacing:.12em; text-transform:uppercase; margin-top:25px; color:var(--b); font-family:Georgia,serif; font-weight:normal; }
+  .sub { font-size:clamp(13px,1.5vw,16px); margin:25px auto 24px; color:var(--muted); max-width:460px; line-height:1.7; }
+  .sub strong { color:var(--ink); font-weight:normal; }
+  .switches { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:0 auto 19px; }
+  .mode { background:rgba(9,10,25,.68); color:var(--muted); border:1px solid var(--edge); border-radius:4px; padding:11px 19px; font:11px monospace; letter-spacing:.14em; text-transform:uppercase; transition:background .3s, color .3s, border-color .3s; }
+  .mode:hover, .mode:focus-visible { border-color:var(--b); color:var(--ink); }
+  .mode[aria-pressed="true"] { background:linear-gradient(125deg,rgba(166,110,240,.30),rgba(75,211,201,.14)); color:var(--ink); border-color:var(--b); box-shadow:0 0 25px rgba(148,108,255,.23); }
+  .lease { text-align:left; border:1px solid var(--edge); position:relative; overflow:hidden; border-radius:3px; background:linear-gradient(135deg,rgba(16,16,39,.82),rgba(7,9,25,.85)); box-shadow:0 22px 95px rgba(0,0,0,.46), inset 0 1px 0 rgba(255,255,255,.06); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); max-width:520px; margin:0 auto; transform-style:preserve-3d; transition:transform .24s ease, border-color .6s; }
+  .lease:before { content:""; position:absolute; left:0; top:0; width:100%; height:2px; background:linear-gradient(90deg,transparent,var(--a),var(--b),transparent); }
+  .lease-top { padding:17px 23px 15px; border-bottom:1px solid var(--edge); display:flex; justify-content:space-between; align-items:center; color:var(--muted); font:10px monospace; letter-spacing:.10em; }
+  .lease-top .red { color:var(--b); }
+  .lease-inner { padding:22px 24px 21px; }
+  .lease h2 { margin:0 0 12px; color:var(--c); font:normal 21px/1.25 Georgia,serif; }
+  #clause { min-height:65px; color:var(--ink); margin:0; font:16px/1.7 Georgia,serif; }
+  .lease-actions { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:13px; flex-wrap:wrap; }
+  .next { background:transparent; border:0; color:var(--b); font:11px monospace; padding:9px 0; letter-spacing:.10em; }
+  .next:hover { text-decoration:underline; }
+  .sign { background:linear-gradient(108deg,#e0c4ff,#79f6e4); color:#0a0920; border:0; border-radius:2px; padding:12px 20px; font:bold 11px monospace; letter-spacing:.12em; text-transform:uppercase; box-shadow:0 0 28px rgba(108,236,220,.20); transition:transform .2s,box-shadow .2s; }
+  .sign:hover { transform:translateY(-2px); box-shadow:0 0 35px rgba(108,236,220,.4); }
+  .signed { display:none; margin:0 0 2px; color:var(--b); font:14px/1.4 Georgia,serif; font-style:italic; }
+  .entered .signed { display:block; }
+  .entered .sign { background:transparent; color:var(--b); border:1px solid var(--b); }
+  .entered .sub { color:#ded5f8; }
+  .entered #clause { font-size:18px; }
+  .entered .lease { border-color:rgba(157,247,232,.5); }
+  .entered .portal { filter:drop-shadow(0 0 72px rgba(114,219,207,.46)); }
+  .side-label { position:absolute; top:50%; color:rgba(210,195,243,.42); font:10px monospace; letter-spacing:.30em; writing-mode:vertical-rl; transform:translateY(-50%); user-select:none; }
+  .side-label.left { left:0; transform:translateY(-50%) rotate(180deg); }
+  .side-label.right { right:0; }
+  footer { position:relative; display:flex; align-items:end; justify-content:space-between; gap:18px; flex-wrap:wrap; padding-top:18px; border-top:1px solid rgba(217,196,255,.18); color:var(--muted); }
+  .fine { max-width:500px; font:10px/1.65 monospace; opacity:.8; }
+  .controls { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  .control { font:10px monospace; letter-spacing:.08em; display:flex; align-items:center; gap:8px; white-space:nowrap; }
+  .control input { width:92px; accent-color:var(--b); }
+  .mini { background:transparent; border:1px solid var(--edge); border-radius:3px; color:var(--muted); padding:8px 10px; font:10px monospace; }
+  .mini:hover { color:var(--b); border-color:var(--b); }
+  #toast { position:fixed; top:81px; right:clamp(18px,4vw,58px); z-index:5; font:11px/1.6 monospace; color:var(--b); background:rgba(8,11,31,.84); border:1px solid var(--edge); padding:10px 14px; border-radius:3px; opacity:0; transform:translateY(-9px); pointer-events:none; transition:opacity .5s,transform .5s; }
+  #toast.show { opacity:1; transform:translateY(0); }
+  #vision { position:fixed; z-index:1; pointer-events:none; inset:0; display:grid; place-items:center; opacity:0; transition:opacity 1.7s; }
+  #vision.active { opacity:.7; }
+  #vision span { font:italic clamp(80px,20vw,260px) Georgia,serif; color:transparent; -webkit-text-stroke:1px rgba(157,227,246,.2); text-shadow:0 0 85px rgba(112,111,245,.17); transform:rotate(-7deg); user-select:none; }
+  .bad { --a:#ec537c; --b:#ffb6a3; --c:#ff748e; --hot:#ae64ff; --edge:rgba(250,126,162,.30); --panel:rgba(33,6,27,.72); --back:#120512; }
+  .bad .lease { background:linear-gradient(135deg,rgba(38,8,32,.86),rgba(14,4,23,.86)); }
+  .bad .mode[aria-pressed="true"] { background:linear-gradient(125deg,rgba(225,45,95,.38),rgba(132,23,104,.18)); }
+  .bad .sign { background:linear-gradient(108deg,#ff92a0,#ffcdb6); }
+  .bad .eyebrow { animation:unease 7s ease-in-out infinite; }
+  .bad .status strong { color:#ff9c9c; }
+  .entered.bad h1 { text-shadow:0 0 30px rgba(252,70,142,.38); }
+  @keyframes rotate { to { transform:rotate(335deg); } }
+  @keyframes unease { 0%,100% { letter-spacing:.21em; } 52% { letter-spacing:.27em; } }
+  @media(max-width:680px) {
+    .shell { padding:17px 15px 14px; }
+    header { align-items:center; }
+    .status { font-size:9px; }
+    main { padding:30px 0 36px; }
+    .portal { width:100vw; }
+    .side-label { display:none; }
+    h1 { font-size:clamp(57px,14vw,83px); }
+    .eyebrow { margin-bottom:20px; }
+    .sub { margin:24px auto 23px; }
+    .lease-top { font-size:9px; padding:14px 16px; }
+    .lease-inner { padding:18px 17px; }
+    #clause { min-height:78px; }
+    footer { align-items:start; }
+    .fine { max-width:100%; }
+  }
+  @media(prefers-reduced-motion:reduce) { .orbital,.bad .eyebrow { animation:none !important; } .lease,.sign,.mode { transition:none; } }
+</style>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="noise" aria-hidden="true"></div><div class="edge-lights" aria-hidden="true"></div>
+<div id="vision" aria-hidden="true"><span>∞</span></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div class="shell" id="app">
+  <header>
+    <div class="seal"><div class="moon">☾</div><div>BLUE MOON<br>DEPARTMENT OF REALITY<br><small>Fictional web experience · Est. ∞</small></div></div>
+    <div class="status">CONNECTION: <strong id="connection">STABLE-ISH</strong><br>DOCUMENT: R-∞-0001<br>TIME: <span id="clock">UNVERIFIED</span></div>
+  </header>
+  <main>
+    <div class="portal" aria-hidden="true"><div class="orbital"></div><div class="orbital"></div><div class="orbital"></div></div>
+    <div class="side-label left">W3C CERTIFIED // REALITY NOT GUARANTEED</div>
+    <div class="side-label right">BY CONTINUING YOU ACCEPT THE UNKNOWN</div>
+    <div class="center">
+      <div class="eyebrow" id="eyebrow">AN ORDINARY ELECTRONIC DOCUMENT</div>
+      <h1>Blue <em>Moon</em><span>Lease on Reality</span></h1>
+      <p class="sub" id="description">Your browser supports <strong>HTTPS, HTML and cookies</strong>. It may also support doorways that shouldn't exist.</p>
+      <div class="switches" role="group" aria-label="Choose the experience">
+        <button type="button" class="mode" id="good" aria-pressed="true">✧ Good trip</button>
+        <button type="button" class="mode" id="bad" aria-pressed="false">◈ Bad trip</button>
+      </div>
+      <section class="lease" id="lease" aria-label="A surreal fictional lease">
+        <div class="lease-top"><span>FORM 00-BM / OCCUPANCY</span><span class="red" id="formStatus">● NOT YET SIGNED</span></div>
+        <div class="lease-inner">
+          <h2 id="clauseTitle">Article I — Terms of Existence</h2>
+          <p id="clause">The tenant shall be permitted one (1) shadow, which may roam freely after midnight.</p>
+          <div class="lease-actions"><button class="next" id="next" type="button">↻ NEXT CLAUSE</button><span class="signed" id="signature">Signed, the person you used to be.</span><button class="sign" id="sign" type="button">Sign & enter ↗</button></div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <footer>
+    <div class="fine" id="fine">A tiny interactive artwork. No actual lease, signature, tracking, uploads or cookies. Move your cursor, click the void, or change the clauses. Press G/B to switch worlds · Space to pause · Esc to reset.</div>
+    <div class="controls">
+      <label class="control" for="intensity">INTENSITY <input type="range" id="intensity" min="10" max="100" value="62" aria-label="Visual intensity"><output id="intensityValue">62%</output></label>
+      <button class="mini" id="sound" type="button" aria-pressed="false">♫ SOUND OFF</button>
+      <button class="mini" id="pause" type="button" aria-pressed="false">Ⅱ PAUSE</button>
+    </div>
+  </footer>
+</div>
+<script>
+(() => {
+  'use strict';
+  const $=s=>document.querySelector(s);
+  const canvas=$('#sky'), ctx=canvas.getContext('2d',{alpha:false});
+  const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clauses={
+    good:[
+      ['Article I — Terms of Existence','The tenant shall be permitted one (1) shadow, which may roam freely after midnight.'],
+      ['Article II — Celestial Amenities','All windows may overlook a different galaxy at the tenant’s discretion.'],
+      ['Article III — Acceptable Pets','Cats, ghosts, and friendly constellations are welcome without additional deposit.'],
+      ['Article IV — Cookies','Cookies may contain memories of lives not yet lived. Consumption is optional.'],
+      ['Article V — Renewal','This reality renews automatically with each sunrise. Dreams remain rent-free.'],
+      ['Article VI — Electronic Signatures','Drawing a circle in the dark is sufficient evidence of your existence.']
+    ],
+    bad:[
+      ['Article I — Terms of Existence','Your reflection has filed a separate application and is currently living in your walls.'],
+      ['Article II — Inspections','Maintenance may enter your thoughts without notice between 3:00 and 3:01 A.M.'],
+      ['Article III — Unpaid Balances','Your outstanding balance is one (1) lifetime. Interest compounds yesterday.'],
+      ['Article IV — Cookies','By accepting cookies, you agree to remember what happened in the previous universe.'],
+      ['Article V — Violations','Silence constitutes consent. Speaking constitutes a violation of the silence policy.'],
+      ['Article VI — Electronic Signatures','The signature appears to match yours. You have not yet signed the document.']
+    ]
+  };
+  const state={mode:'good', entered:false, paused:reducedMotion, intensity:reducedMotion?22:62, clauseIndex:0, w:0,h:0,dpr:1, t:0, frame:0, particles:[], ripples:[], mouse:{x:.5,y:.5,active:false}, sound:false};
+  if(reducedMotion) $('#intensity').value='22';
+  $('#intensityValue').textContent=state.intensity+'%';
+  const rand=(a,b)=>a+Math.random()*(b-a);
+  function resize(){
+    const oldW=state.w||window.innerWidth, oldH=state.h||window.innerHeight;
+    state.w=window.innerWidth; state.h=window.innerHeight;
+    state.dpr=Math.min(window.devicePixelRatio||1,1.7);
+    canvas.width=Math.floor(state.w*state.dpr); canvas.height=Math.floor(state.h*state.dpr);
+    canvas.style.width=state.w+'px';canvas.style.height=state.h+'px';
+    ctx.setTransform(state.dpr,0,0,state.dpr,0,0);
+    if(state.particles.length){for(const p of state.particles){p.x*=state.w/oldW;p.y*=state.h/oldH;}}
+  }
+  function resetParticles(){
+    const count=Math.min(205,Math.round(85+state.intensity*1.1));
+    state.particles=Array.from({length:count},()=>({angle:rand(0,Math.PI*2), radius:rand(10,Math.hypot(state.w,state.h)*.55), speed:rand(.00012,.00072), size:rand(.6,2.6), phase:rand(0,Math.PI*2), orbit:rand(.56,1.8), type:Math.random()}));
+  }
+  function setMode(mode){
+    state.mode=mode;state.clauseIndex=0;
+    document.body.classList.toggle('bad',mode==='bad');
+    $('#good').setAttribute('aria-pressed',String(mode==='good'));
+    $('#bad').setAttribute('aria-pressed',String(mode==='bad'));
+    $('#connection').textContent=mode==='bad'?'WE KNOW':'STABLE-ISH';
+    $('#eyebrow').textContent=mode==='bad'?'THIS DOCUMENT IS ALREADY SIGNED':'AN ORDINARY ELECTRONIC DOCUMENT';
+    $('#description').innerHTML=mode==='bad'?'Your browser supports <strong>HTTPS, HTML and cookies</strong>. Something else is browsing you.':'Your browser supports <strong>HTTPS, HTML and cookies</strong>. It may also support doorways that shouldn\'t exist.';
+    $('#vision span').textContent=mode==='bad'?'?':'∞';
+    showClause();
+    if(state.sound) updateAudio();
+    toast(mode==='bad'?'Alternate tenant detected.':'Existence is now pleasantly negotiable.');
+  }
+  function showClause(){
+    const c=clauses[state.mode][state.clauseIndex%clauses[state.mode].length];
+    $('#clauseTitle').textContent=c[0];$('#clause').textContent=c[1];
+  }
+  let toastTimeout;
+  function toast(message){
+    const el=$('#toast');el.textContent=message;el.classList.add('show');
+    clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>el.classList.remove('show'),3000);
+  }
+  function sign(){
+    state.entered=!state.entered;
+    document.body.classList.toggle('entered',state.entered);
+    $('#sign').textContent=state.entered?'Return to Earth ↩':'Sign & enter ↗';
+    $('#formStatus').textContent=state.entered?'● REALITY LEASED':'● NOT YET SIGNED';
+    $('#signature').textContent=state.mode==='bad'?'Signed before you arrived.':'Signed, the person you used to be.';
+    $('#eyebrow').textContent=state.entered?'OCCUPANCY APPROVED — WELCOME INSIDE':(state.mode==='bad'?'THIS DOCUMENT IS ALREADY SIGNED':'AN ORDINARY ELECTRONIC DOCUMENT');
+    $('#vision').classList.toggle('active',state.entered);
+    toast(state.entered?'Welcome. Your deposit has been converted into stardust.':'You have been returned to your original dimension.');
+    spawnRipples(state.w*.5,state.h*.5,5);
+  }
+  function spawnRipples(x,y,n=1){for(let i=0;i<n;i++){state.ripples.push({x,y,age:-i*15,max:rand(85,220),width:rand(1,2.2)});}}
+  function paint(){
+    const w=state.w,h=state.h, t=state.t, trip=state.mode==='bad', amt=state.intensity/100;
+    const centerX=w*(.5+(state.mouse.x-.5)*(.08*amt)),centerY=h*(.49+(state.mouse.y-.5)*(.08*amt));
+    // Soft painterly gradients instead of strobes or rapid flashes.
+    const back=ctx.createRadialGradient(centerX,centerY,20,centerX,centerY,Math.max(w,h)*.8);
+    if(trip){back.addColorStop(0,'#32102d');back.addColorStop(.35,'#180820');back.addColorStop(1,'#06020b');}
+    else{back.addColorStop(0,'#21194a');back.addColorStop(.34,'#11142e');back.addColorStop(1,'#040714');}
+    ctx.fillStyle=back;ctx.fillRect(0,0,w,h);
+    ctx.save();ctx.translate(centerX,centerY);
+    const scale=Math.min(w,h)*(.33+amt*.09);
+    for(let j=0;j<12;j++){
+      ctx.beginPath();const theta=j*Math.PI/6+t*(trip?-.00006:.000045), s=scale*(.21+j*.057);
+      for(let k=0;k<=180;k++){
+        const a=k/180*Math.PI*2, wave=Math.sin(a*3+theta*2+t*.0003)*(.18+amt*.09);
+        const r=s*(1+wave+Math.cos(a*5-theta)*.068);
+        const x=Math.cos(a+theta)*r, y=Math.sin(a+theta)*r*.73;
+        if(k===0) ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      }
+      ctx.closePath();
+      const hue=trip?(330+j*5):(195+j*13);
+      ctx.strokeStyle=`hsla(${hue%360}, 92%, ${trip?67:76}%, ${(.027+amt*.013)*(13-j)/13})`;
+      ctx.lineWidth=1+(j%3===0?1.0:0);ctx.stroke();
+    }
+    const glow=ctx.createRadialGradient(0,0,0,0,0,scale*.73);
+    if(trip){glow.addColorStop(0,'rgba(208,38,93,.25)');glow.addColorStop(.46,'rgba(130,29,110,.09)');glow.addColorStop(1,'transparent');}
+    else{glow.addColorStop(0,'rgba(94,220,222,.25)');glow.addColorStop(.45,'rgba(131,87,255,.10)');glow.addColorStop(1,'transparent');}
+    ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,0,scale*.74,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+    // A field of slow-moving particles forms the dimensional tunnel.
+    for(const p of state.particles){
+      const angle=p.angle+t*p.speed*(trip?-1:1)*(0.4+amt);
+      const pulse=1+Math.sin(t*.0004+p.phase)*.075;
+      const r=p.radius*pulse;
+      const px=centerX+Math.cos(angle*p.orbit+p.phase*.12)*r;
+      const py=centerY+Math.sin(angle+p.phase*.13)*r*.72;
+      if(px<0||px>w||py<0||py>h) continue;
+      const alpha=(.22+amt*.46)*(1-r/Math.hypot(w,h)*.54);
+      const hue=trip?(342+p.type*38):(178+p.type*115);
+      ctx.fillStyle=`hsla(${hue},90%,${trip?68:82}%,${Math.max(.04,alpha)})`;
+      ctx.beginPath();ctx.arc(px,py,p.size*(.48+amt*.58),0,Math.PI*2);ctx.fill();
+      if(p.type>.94){ctx.strokeStyle=`hsla(${hue},90%,86%,${alpha*.6})`;ctx.lineWidth=.65;ctx.beginPath();ctx.moveTo(px-5,py);ctx.lineTo(px+5,py);ctx.moveTo(px,py-5);ctx.lineTo(px,py+5);ctx.stroke();}
+    }
+    state.ripples=state.ripples.filter(r=>r.age<95);
+    for(const r of state.ripples){if(r.age<0){r.age++;continue;}r.age+=1.25;
+      const f=r.age/95, rad=5+f*r.max;
+      ctx.strokeStyle=trip?`rgba(255,123,155,${(1-f)*.43})`:`rgba(115,244,227,${(1-f)*.48})`;
+      ctx.lineWidth=r.width*(1-f)+.3;ctx.beginPath();ctx.ellipse(r.x,r.y,rad,rad*.72,0,0,Math.PI*2);ctx.stroke();
+    }
+    // A slow flowing light thread follows the cursor.
+    if(state.mouse.active&&amt>.25){
+      const px=state.mouse.x*w,py=state.mouse.y*h;
+      const halo=ctx.createRadialGradient(px,py,0,px,py,150*amt);
+      halo.addColorStop(0,trip?'rgba(255,97,152,.13)':'rgba(96,244,229,.12)');halo.addColorStop(1,'transparent');
+      ctx.fillStyle=halo;ctx.fillRect(px-160,py-160,320,320);
+    }
+  }
+  function tick(){
+    if(!state.paused){state.t+=16.67;state.frame++;paint();}
+    requestAnimationFrame(tick);
+  }
+  let ac,osc=[],master;
+  function initAudio(){
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC){toast('Web Audio is unavailable in this browser.');return false;}
+    try{
+      ac=new AC(); master=ac.createGain(); master.gain.value=0; master.connect(ac.destination);
+      [0,7,12].forEach((_,i)=>{
+        const o=ac.createOscillator(),g=ac.createGain();
+        o.type=i===0?'sine':'triangle';o.frequency.value=[110,164.81,220][i];g.gain.value=[.30,.085,.045][i];
+        o.connect(g);g.connect(master);o.start();osc.push(o);
+      });return true;
+    }catch(e){toast('Audio could not be started.');return false;}
+  }
+  function updateAudio(){if(!ac)return;const tones=state.mode==='bad'?[82.41,116.54,174.61]:[110,164.81,220];osc.forEach((o,i)=>o.frequency.setTargetAtTime(tones[i],ac.currentTime,.8));}
+  function toggleAudio(){
+    if(!ac&&!initAudio())return;
+    if(ac.state==='suspended')ac.resume();state.sound=!state.sound;updateAudio();
+    master.gain.setTargetAtTime(state.sound?.11:0,ac.currentTime,.3);
+    $('#sound').setAttribute('aria-pressed',String(state.sound));$('#sound').textContent=state.sound?'♫ SOUND ON':'♫ SOUND OFF';
+    toast(state.sound?'Low-volume ambient drone enabled.':'Audio muted.');
+  }
+  function pause(){state.paused=!state.paused;$('#pause').textContent=state.paused?'▶ RESUME':'Ⅱ PAUSE';$('#pause').setAttribute('aria-pressed',String(state.paused));if(!state.paused)paint();}
+  function reset(){if(state.entered)sign();setMode('good');}
+  $('#good').addEventListener('click',()=>setMode('good'));
+  $('#bad').addEventListener('click',()=>setMode('bad'));
+  $('#next').addEventListener('click',()=>{state.clauseIndex++;showClause();spawnRipples(state.w*.5,state.h*.52,1);});
+  $('#sign').addEventListener('click',sign);
+  $('#sound').addEventListener('click',toggleAudio);
+  $('#pause').addEventListener('click',pause);
+  $('#intensity').addEventListener('input',e=>{state.intensity=Number(e.target.value);$('#intensityValue').textContent=state.intensity+'%';resetParticles();if(state.paused)paint();});
+  window.addEventListener('resize',()=>{resize();if(state.paused)paint();});
+  window.addEventListener('pointermove',e=>{state.mouse.x=e.clientX/state.w;state.mouse.y=e.clientY/state.h;state.mouse.active=true;});
+  window.addEventListener('pointerleave',()=>{state.mouse.active=false;});
+  window.addEventListener('pointerdown',e=>{if(!e.target.closest('button,input,.lease'))spawnRipples(e.clientX,e.clientY,state.entered?3:1);});
+  window.addEventListener('keydown',e=>{
+    const tag=(document.activeElement?.tagName||'').toLowerCase();if(tag==='input'&&e.key!=='Escape')return;
+    if(e.key==='Escape')reset();
+    if(e.key.toLowerCase()==='g')setMode('good');
+    if(e.key.toLowerCase()==='b')setMode('bad');
+    if(e.code==='Space'&&!['button','input'].includes(tag)){e.preventDefault();pause();}
+  });
+  const showTime=()=>{$('#clock').textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}).replace(' ',' ');};
+  showTime();setInterval(showTime,30000);
+  resize();resetParticles();paint();tick();
+  if(reducedMotion){$('#pause').textContent='▶ RESUME';$('#pause').setAttribute('aria-pressed','true');}
+})();
+</script>
+</body>
+</html>
